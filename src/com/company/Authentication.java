@@ -22,14 +22,14 @@ public class Authentication {
         this.password = password;
     }
 
-    public PolyclinicManager verificationLogin() {
+    public Manager verificationLogin() {
         Scanner sc = new Scanner(System.in);
         do {
             System.out.println("Введите логин");
             this.setLogin(sc.nextLine());
             if (isCheckLogin()) {
                 this.verificationPassword();
-                return new PolyclinicManager();
+                return new Manager();
             } else {
                 System.out.println("Логин введён неверно. Попробуйте ещё раз.");
             }
@@ -48,7 +48,7 @@ public class Authentication {
             System.out.println("Введите пароль");
             this.setPassword(sc.nextLine());
             if (isCheckPassword()) {
-                return;
+              return;
             } else {
                 System.out.println("Пароль введён неверно. Попробуйте ещё раз");
             }

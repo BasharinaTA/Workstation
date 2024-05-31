@@ -2,43 +2,44 @@ package com.company;
 
 import java.util.Scanner;
 
-public class Appointment {
+public class Appointment implements Entity<Appointment> {
     private Patient patient;
-    private Specialist specialist;
-    private final PolyclinicManager polyclinicManager;
+    private Doctor doctor;
 
-    public Appointment(PolyclinicManager polyclinicManager) {
-        this.polyclinicManager = polyclinicManager;
-    }
-
-    public void createAppointment() {
+    @Override
+    public void init() {
         System.out.println("Добавить запись.");
     }
 
-    public void updateAppointment() {
+    @Override
+    public void update() {
         System.out.println("Редактировать запись.");
     }
 
-    public void deleteAppointment() {
+
+    public void delete() {
         System.out.println("Удалить запись.");
     }
 
-    public void appointmentMenu() {
+
+    public static void showMenu(Manager manager) {
         Scanner sc = new Scanner(System.in);
-        System.out.println("Выберите одно из указанных действий, введя соответствующую цифру.\n" +
-                "Добавить запись - 1.\n" +
-                "Редактировать запись - 2.\n" +
-                "Отменить запись - 3.\n" +
-                "Если вы хотите вернуться на главную форму, введите 0\n");
-        int inputValue = sc.nextInt();
-        if (inputValue == 0) {
-            polyclinicManager.mainMenu();
-        } else if (inputValue == 1) {
-            createAppointment();
-        } else if (inputValue == 2) {
-            updateAppointment();
-        } else if (inputValue == 3) {
-            deleteAppointment();
+        while (true) {
+            System.out.println(
+                    "Выберите одно из указанных действий, введя соответствующее значение:\n" +
+                            "1 - добавить запись\n" +
+                            "2 - редактировать запись\n" +
+                            "3 - отменить запись\n" +
+                            "0 - вернуться в главное меню");
+            switch (sc.nextLine()) {
+                case "0" -> {
+                    return;
+                }
+                case "1" -> manager.addAppointment();
+                case "2" -> manager.updateAppointment();
+                case "3" -> manager.deleteAppointment();
+                default -> System.out.println("Введено некорректное значение");
+            }
         }
     }
 }

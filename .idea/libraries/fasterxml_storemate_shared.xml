@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="fasterxml.storemate.shared" type="repository">
+    <properties maven-id="com.fasterxml.storemate:storemate-shared:1.1.2" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/storemate/storemate-shared/1.1.2/storemate-shared-1.1.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/ning/compress-lzf/1.0.1/compress-lzf-1.0.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.2/junit-4.8.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
