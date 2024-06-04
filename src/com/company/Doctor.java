@@ -1,9 +1,13 @@
 package com.company;
 
+import com.company.exception.InvalidInputException;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
-public class Doctor extends Person implements Entity<Doctor> {
+public class Doctor extends Person {
     private String position;
 
     public Doctor() {
@@ -11,7 +15,7 @@ public class Doctor extends Person implements Entity<Doctor> {
 
     public Doctor(String[] arr) {
         super(arr[0], arr[1], arr[2], arr[3]);
-        this.position = arr[5];
+        this.position = arr[4];
     }
 
     public String getPosition() {
@@ -19,6 +23,9 @@ public class Doctor extends Person implements Entity<Doctor> {
     }
 
     public void setPosition(String position) {
+        if (position.matches("^\\S+$")) {
+            throw new InvalidInputException("Вводимое значение не должно содержать пробелы");
+        }
         this.position = position;
     }
 
@@ -59,7 +66,7 @@ public class Doctor extends Person implements Entity<Doctor> {
         while (true) {
             System.out.println(
                     "Выберите одно из указанных действий, введя соответствующее значение:\n" +
-                            "1 - работа со списком специалистов\n" +
+                            "1 - показать список специалистов\n" +
                             "2 - добавить нового специалиста\n" +
                             "3 - редактировать запись специалиста\n" +
                             "4 - удалить запись о специалисте\n" +
@@ -68,7 +75,7 @@ public class Doctor extends Person implements Entity<Doctor> {
                 case "0" -> {
                     return;
                 }
-                case "1" -> manager.showAllPatients();
+                case "1" -> manager.showAllDoctors();
                 case "2" -> manager.addDoctor();
                 case "3" -> manager.updateDoctor();
                 case "4" -> manager.deleteDoctor();
@@ -79,11 +86,23 @@ public class Doctor extends Person implements Entity<Doctor> {
 
     @Override
     public void init() {
-        System.out.println("Добавить запись.");
+        List<Answer> info = Arrays.asList(
+                new Answer("Введите фамилию специалиста", this::setLastname),
+                new Answer("Введите имя специалиста", this::setFirstname),
+                new Answer("Введите дату рождения специалиста", this::setDateOfBirth),
+                new Answer("Введите должность специалиста", this::setPosition)
+        );
+        fillEntity(info);
+    }
+
+
+    public List<Doctor> find(String position, String lastname, String firstname) {
+        return null;
     }
 
     @Override
     public void update() {
         System.out.println("Обновление записи");
     }
+
 }

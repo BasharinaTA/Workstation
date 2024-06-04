@@ -1,13 +1,13 @@
 package com.company;
 
+import com.company.exception.InvalidInputException;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
-import java.util.Scanner;
 
-public abstract class Person implements Comparable<Person> {
+public abstract class Person extends Entity implements Comparable<Person> {
     private String id;
     private String lastname;
     private String firstname;
@@ -36,6 +36,9 @@ public abstract class Person implements Comparable<Person> {
     }
 
     public void setLastname(String lastname) {
+        if (!lastname.matches("^\\S+$")) {
+            throw new InvalidInputException("Вводимое значение не должно содержать пробелы");
+        }
         this.lastname = lastname;
     }
 
@@ -44,6 +47,9 @@ public abstract class Person implements Comparable<Person> {
     }
 
     public void setFirstname(String firstname) {
+        if (!firstname.matches("^\\S+$")) {
+            throw new InvalidInputException("Вводимое значение не должно содержать пробелы");
+        }
         this.firstname = firstname;
     }
 
@@ -52,7 +58,14 @@ public abstract class Person implements Comparable<Person> {
     }
 
     public void setDateOfBirth(String dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+        try {
+            format.setLenient(false);
+            format.parse(dateOfBirth);
+            this.dateOfBirth = dateOfBirth.trim();
+        } catch (ParseException e) {
+            throw new InvalidInputException("Вводимое значение должно соответствовать формату дд.мм.гггг");
+        }
     }
 
     @Override
@@ -102,18 +115,5 @@ public abstract class Person implements Comparable<Person> {
                 + getLastname() + " "
                 + getFirstname() + " "
                 + getDateOfBirth();
-    }
-
-    protected void personFill(List<Answer> info) {
-        Scanner sc = new Scanner(System.in);
-        for (int i = 0; i < info.size(); i++) {
-            System.out.println(info.get(i).getQuestion());
-            String str = sc.nextLine();
-            while (str.isEmpty()) {
-                System.out.println("Введённое значение не может быть пустым \n" + info.get(i).getQuestion());
-                str = sc.nextLine();
-            }
-            info.get(i).getConsumer().accept(str);
-        }
     }
 }

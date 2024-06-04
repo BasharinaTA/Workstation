@@ -1,11 +1,13 @@
 package com.company;
 
+import com.company.exception.InvalidInputException;
+
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.List;
 import java.util.Arrays;
 
-public class Patient extends Person implements Entity<Patient> {
+public class Patient extends Person {
     private String insurancePolicy;
 
     public Patient() {
@@ -21,6 +23,9 @@ public class Patient extends Person implements Entity<Patient> {
     }
 
     public void setInsurancePolicy(String insurancePolicy) {
+        if (!insurancePolicy.matches("^\\d{16}$")) {
+            throw new InvalidInputException("Вводимое значение должно состоять из 16 цифр");
+        }
         this.insurancePolicy = insurancePolicy;
     }
 
@@ -85,9 +90,10 @@ public class Patient extends Person implements Entity<Patient> {
                 new Answer("Введите фамилию пациента", this::setLastname),
                 new Answer("Введите имя пациента", this::setFirstname),
                 new Answer("Введите дату рождения пациента", this::setDateOfBirth),
-                new Answer("Введите номер полиса пациента",  this::setInsurancePolicy));
-        personFill(info);
+                new Answer("Введите номер полиса пациента", this::setInsurancePolicy));
+        fillEntity(info);
     }
+
 
     @Override
     public void update() {
@@ -97,5 +103,6 @@ public class Patient extends Person implements Entity<Patient> {
                 new Answer("Введите дату рождения пациента. Если изменение не требуется, нажмите \"Enter\"", this::setDateOfBirth),
                 new Answer("Введите номер полиса пациента. Если изменение не требуется, нажмите \"Enter\"", this::setInsurancePolicy)
         );
+        updateEntity(info);
     }
 }

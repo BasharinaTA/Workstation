@@ -2,7 +2,7 @@ package com.company;
 
 import java.util.Scanner;
 
-public class Appointment implements Entity<Appointment> {
+public class Appointment extends Entity {
     private Patient patient;
     private Doctor doctor;
 
@@ -17,9 +17,7 @@ public class Appointment implements Entity<Appointment> {
     }
 
 
-    public void delete() {
-        System.out.println("Удалить запись.");
-    }
+
 
 
     public static void showMenu(Manager manager) {
