@@ -1,14 +1,14 @@
-package com.company;
+package com.company.clinic;
 
-import com.company.exception.InvalidInputException;
+import com.company.exceptions.InvalidInputException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
-public abstract class Person extends Entity implements Comparable<Person> {
-    private String id;
+public abstract class Person extends Entity {
+
     private String lastname;
     private String firstname;
     private String dateOfBirth;
@@ -16,19 +16,10 @@ public abstract class Person extends Entity implements Comparable<Person> {
     public Person() {
     }
 
-    public Person(String id, String lastname, String firstname, String dateOfBirth) {
-        this.id = id;
+    public Person(String lastname, String firstname, String dateOfBirth) {
         this.lastname = lastname;
         this.firstname = firstname;
         this.dateOfBirth = dateOfBirth;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getLastname() {
@@ -59,8 +50,8 @@ public abstract class Person extends Entity implements Comparable<Person> {
 
     public void setDateOfBirth(String dateOfBirth) {
         SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+        format.setLenient(false);
         try {
-            format.setLenient(false);
             format.parse(dateOfBirth);
             this.dateOfBirth = dateOfBirth.trim();
         } catch (ParseException e) {
@@ -77,18 +68,16 @@ public abstract class Person extends Entity implements Comparable<Person> {
             return false;
         }
         Person person = (Person) obj;
-        return id.equals(person.id)
-                && lastname.equals(person.lastname)
+        return lastname.equals(person.lastname)
                 && firstname.equals(person.firstname)
                 && dateOfBirth.equals(person.dateOfBirth);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, lastname, firstname, dateOfBirth);
+        return Objects.hash(lastname, firstname, dateOfBirth);
     }
 
-    @Override
     public int compareTo(Person person) {
         if (!lastname.equals(person.getLastname())) {
             return lastname.compareTo(person.getLastname());
@@ -111,9 +100,6 @@ public abstract class Person extends Entity implements Comparable<Person> {
 
     @Override
     public String toString() {
-        return getId() + " "
-                + getLastname() + " "
-                + getFirstname() + " "
-                + getDateOfBirth();
+        return getLastname() + ", " + getFirstname() + ", " + getDateOfBirth();
     }
 }
