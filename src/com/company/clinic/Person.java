@@ -17,9 +17,9 @@ public abstract class Person extends Entity {
     }
 
     public Person(String lastname, String firstname, String dateOfBirth) {
-        this.lastname = lastname;
-        this.firstname = firstname;
-        this.dateOfBirth = dateOfBirth;
+        setLastname(lastname);
+        setFirstname(firstname);
+        setDateOfBirth(dateOfBirth);
     }
 
     public String getLastname() {
@@ -28,7 +28,7 @@ public abstract class Person extends Entity {
 
     public void setLastname(String lastname) {
         if (!lastname.matches("^\\S+$")) {
-            throw new InvalidInputException("Вводимое значение не должно содержать пробелы");
+            throw new InvalidInputException("Вводимое значение не должно быть пустым или содержать пробелы");
         }
         this.lastname = lastname;
     }
@@ -39,7 +39,7 @@ public abstract class Person extends Entity {
 
     public void setFirstname(String firstname) {
         if (!firstname.matches("^\\S+$")) {
-            throw new InvalidInputException("Вводимое значение не должно содержать пробелы");
+            throw new InvalidInputException("Вводимое значение не должно быть пустым или содержать пробелы");
         }
         this.firstname = firstname;
     }
@@ -100,6 +100,6 @@ public abstract class Person extends Entity {
 
     @Override
     public String toString() {
-        return getLastname() + ", " + getFirstname() + ", " + getDateOfBirth();
+        return getDateOfBirth() + ", " + getLastname() + ", " + getFirstname();
     }
 }

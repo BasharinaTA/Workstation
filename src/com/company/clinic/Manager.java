@@ -1,6 +1,7 @@
 package com.company.clinic;
 
-import com.company.utils.FileUtility;
+import com.company.exceptions.InvalidInputException;
+import com.company.utils.File;
 import com.company.utils.Search;
 
 import java.util.List;
@@ -18,9 +19,9 @@ public class Manager {
             System.out.println(
                     """
                             Выберите одно из указанных действий, введя соответствующее значение:
-                            1 - запись на приём
-                            2 - работа с пациентом
-                            3 - работа со специалистом
+                            1 - работа со списком приёмов
+                            2 - работа со списком пациентов
+                            3 - работа со списком специалистов
                             exit - выход из системы""");
             switch (sc.nextLine()) {
                 case "1" -> Appointment.showMenu(this, sc);
@@ -34,11 +35,39 @@ public class Manager {
         }
     }
 
-    public <T extends Entity> void showEntities(String path,
-                                                Function<String[], T> function) {
+    public <T> void showEntities(String path,
+                                 Scanner sc,
+                                 Function<String[], T> function,
+                                 List<Search<T>> list) {
         synchronized (lock) {
-            List<T> entities = FileUtility.readFile(path, function);
+            List<T> entities = File.readFile(path, function);
             entities.forEach(System.out::print);
+            filterEntities(sc, entities, list);
+        }
+    }
+
+    private <T> void filterEntities(Scanner sc, List<T> entities, List<Search<T>> arr) {
+        while (true) {
+            System.out.println("Если хотите дополнительно отфильтровать записи, введите \"да\".");
+            if (!sc.nextLine().trim().equals("да")) {
+                return;
+            }
+            for (Search<T> a : arr) {
+                System.out.println(a.getQuestion());
+                String data = sc.nextLine();
+                entities = entities
+                        .stream()
+                        .filter(d -> a.getFunction().apply(d).contains(data))
+                        .collect(Collectors.toList());
+                entities.forEach(System.out::print);
+                if (entities.size() == 1) {
+                    return;
+                }
+                if (entities.isEmpty()) {
+                    System.out.println("В списке не найдена запись с указанными данными");
+                    return;
+                }
+            }
         }
     }
 
@@ -47,17 +76,22 @@ public class Manager {
                                              Supplier<T> supplier,
                                              Function<String[], T> function) {
         T entity = supplier.get();
-        synchronized (lock) {
+        try {
             entity.init(sc);
-            List<T> entities = FileUtility.readFile(path, function);
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage() + " Запись не добавлена.");
+            return;
+        }
+        synchronized (lock) {
+            List<T> entities = File.readFile(path, function);
             if (!entity.check((List<Entity>) entities)) {
                 System.out.println("Запись с указанными данными уже существует");
                 return;
             }
             entities.add(entity);
             entities = entities.stream().sorted().collect(Collectors.toList());
-            FileUtility.writeFile(path, entities);
-            System.out.printf("Успешно добавлен запись: %s", entity);
+            File.writeFile(path, entities);
+            System.out.printf("Успешно добавлена запись: %s", entity);
         }
     }
 
@@ -66,16 +100,25 @@ public class Manager {
                                                 Function<String[], T> function,
                                                 List<Search<T>> list) {
         synchronized (lock) {
-            List<T> entities = FileUtility.readFile(path, function);
+            List<T> entities = File.readFile(path, function);
             T entity = findEntity(sc, entities, list);
             if (entity != null) {
                 System.out.printf("Полученная для редактирования запись: %s", entity);
-                entity.update(sc);
+                try {
+                    entity.update(sc);
+                } catch (InvalidInputException e) {
+                    System.out.println(e.getMessage() + " Запись не обновлена.");
+                    return;
+                }
+                if (!entity.check((List<Entity>) entities)) {
+                    System.out.println("Запись с указанными данными уже существует");
+                    return;
+                }
                 entities = entities.stream().sorted().collect(Collectors.toList());
-                FileUtility.writeFile(path, entities);
+                File.writeFile(path, entities);
                 System.out.printf("Успешно отредактирована запись: %s ", entity);
             } else {
-                System.out.println("Записи с указанными данными нет в списке");
+                System.out.println("В списке не найдена запись с указанными данными");
             }
         }
     }
@@ -85,20 +128,16 @@ public class Manager {
                                                 Function<String[], T> function,
                                                 List<Search<T>> list) {
         synchronized (lock) {
-            List<T> entities = FileUtility.readFile(path, function);
+            List<T> entities = File.readFile(path, function);
             T entity = findEntity(sc, entities, list);
             if (entity != null) {
-                System.out.printf(
-                        """
-                                Вы действительно хотите удалить запись: %sЕсли да, введите "yes" и нажмите "Enter"
-                                Если нет, нажмите "Enter"
-                                """, entity);
-                if (!sc.nextLine().equals("yes")) {
+                System.out.printf("Введите \"да\", если хотите удалить запись: %s", entity);
+                if (!sc.nextLine().trim().equals("да")) {
                     System.out.printf("Не была удалена запись: %s", entity);
                     return;
                 }
                 entities.remove(entity);
-                FileUtility.writeFile(path, entities);
+                File.writeFile(path, entities);
                 System.out.printf("Успешно удалена запись: %s ", entity);
             } else {
                 System.out.println("В списке не найдена запись с указанными данными");
@@ -106,19 +145,20 @@ public class Manager {
         }
     }
 
-    private <T> T findEntity(Scanner sc, List<T> entities, List<Search<T>> arr) {
-        for (Search<T> a : arr) {
-            System.out.println(a.getQuestion());
-            String data = sc.nextLine();
-            entities = entities
-                    .stream()
-                    .filter(d -> a.getFunction().apply(d).equals(data))
-                    .collect(Collectors.toList());
-            if (entities.size() <= 1) {
-                return entities.stream().findFirst().orElse(null);
+    public <T> T findEntity(Scanner sc, List<T> entities, List<Search<T>> arr) {
+        while (true) {
+            for (Search<T> a : arr) {
+                System.out.println(a.getQuestion());
+                String data = sc.nextLine();
+                entities = entities
+                        .stream()
+                        .filter(d -> a.getFunction().apply(d).contains(data))
+                        .collect(Collectors.toList());
+                if (entities.size() <= 1) {
+                    return entities.stream().findFirst().orElse(null);
+                }
+                entities.forEach(System.out::print);
             }
-            entities.forEach(System.out::print);
         }
-        throw new RuntimeException("many id in doctors");
     }
 }

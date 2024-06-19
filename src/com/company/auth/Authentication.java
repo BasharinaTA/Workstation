@@ -1,7 +1,7 @@
 package com.company.auth;
 
 import com.company.clinic.Manager;
-import com.company.utils.FileUtility;
+import com.company.utils.File;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -45,8 +45,7 @@ public class Authentication {
     }
 
     public Manager authenticate(Scanner sc) {
-        List<Authentication> authentications;
-        authentications = FileUtility.readFile(PATH, Authentication::new);
+        List<Authentication> authentications = File.readFile(PATH, Authentication::new);
         while (true) {
             System.out.println("Введите логин:");
             this.setLogin(sc.nextLine());
@@ -64,7 +63,7 @@ public class Authentication {
         }
     }
 
-    private static String generatePasswordHash(String password) {
+    public static String generatePasswordHash(String password) {
         byte[] salt = {-11, 93, -31, -22, 0, 56, -79, -54, -105, 83, 1, 69, 2, 75, -109, -96};
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

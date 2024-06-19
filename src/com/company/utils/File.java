@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class FileUtility {
+public class File {
 
     public static <T> List<T> readFile(String path, Function<String[], T> function) {
         String str;
@@ -17,12 +17,12 @@ public class FileUtility {
                 String[] arr = str.split(", ");
                 list.add(function.apply(arr));
             }
+            return list;
         } catch (FileNotFoundException e) {
             throw new FileException("Файл с записями не найден");
         } catch (IOException e) {
             throw new FileException("Ошибка при чтении данных из файла");
         }
-        return list;
     }
 
     public static <T> void writeFile(String path, List<T> list) {
