@@ -15,8 +15,8 @@ public class Patient extends Person implements Comparable<Patient> {
     }
 
     public Patient(String[] arr) {
-        super(arr[0], arr[1], arr[2]);
-        this.insurancePolicy = arr[3];
+        super(arr[2], arr[3], arr[1]);
+        setInsurancePolicy(arr[0]);
     }
 
     public String getInsurancePolicy() {
@@ -38,16 +38,16 @@ public class Patient extends Person implements Comparable<Patient> {
                             1 - показать список пациентов
                             2 - добавить нового пациента
                             3 - редактировать запись пациента
-                            4 - удалить запись о пациенте
+                            4 - удалить запись пациента
                             0 - вернуться в главное меню""");
             switch (sc.nextLine()) {
                 case "0" -> {
                     return;
                 }
-                case "1" -> manager.showEntities(PATH, Patient::new);
+                case "1" -> manager.showEntities(PATH, sc, Patient::new, createQuestionsFindPatient());
                 case "2" -> manager.addEntity(PATH, sc, Patient::new, Patient::new);
-                case "3" -> manager.updateEntity(PATH, sc, Patient::new, Patient.findPatient());
-                case "4" -> manager.deleteEntity(PATH, sc, Patient::new, Patient.findPatient());
+                case "3" -> manager.updateEntity(PATH, sc, Patient::new, createQuestionsFindPatient());
+                case "4" -> manager.deleteEntity(PATH, sc, Patient::new, createQuestionsFindPatient());
                 default -> System.out.println("Введено некорректное значение");
             }
         }
@@ -55,38 +55,42 @@ public class Patient extends Person implements Comparable<Patient> {
 
     @Override
     public void init(Scanner sc) {
-        List<Survey> list = List.of(
-                new Survey("Введите фамилию пациента", this::setLastname),
-                new Survey("Введите имя пациента", this::setFirstname),
-                new Survey("Введите дату рождения пациента", this::setDateOfBirth),
-                new Survey("Введите номер полиса пациента", this::setInsurancePolicy));
+        List<Survey> list = createList(":");
         fillEntity(sc, list);
     }
 
     @Override
     public void update(Scanner sc) {
-        List<Survey> list = List.of(
-                new Survey("Введите фамилию пациента. Если изменение не требуется, нажмите \"Enter\"", this::setLastname),
-                new Survey("Введите имя пациента. Если изменение не требуется, нажмите \"Enter\"", this::setFirstname),
-                new Survey("Введите дату рождения пациента. Если изменение не требуется, нажмите \"Enter\"", this::setDateOfBirth),
-                new Survey("Введите номер полиса пациента. Если изменение не требуется, нажмите \"Enter\"", this::setInsurancePolicy)
-        );
+        List<Survey> list = createList(". Если изменение не требуется, нажмите \"Enter\"");
         updateEntity(sc, list);
+    }
+
+    private List<Survey> createList(String addition) {
+        return List.of(
+                new Survey("Введите фамилию пациента" + addition, this::setLastname),
+                new Survey("Введите имя пациента" + addition, this::setFirstname),
+                new Survey("Введите дату рождения пациента" + addition, this::setDateOfBirth),
+                new Survey("Введите номер полиса пациента" + addition, this::setInsurancePolicy)
+        );
     }
 
     @Override
     public boolean check(List<Entity> patients) {
         for (Entity e : patients) {
             Patient patient = (Patient) e;
-            if (insurancePolicy.equals(patient.getInsurancePolicy())) {
+            if (!this.equals(patient) && insurancePolicy.equals(patient.getInsurancePolicy())) {
                 return false;
             }
         }
         return true;
     }
 
-    public static List<Search<Patient>> findPatient() {
-        return List.of(new Search<>("Введите номер полиса пациента", Patient::getInsurancePolicy));
+    public static List<Search<Patient>> createQuestionsFindPatient() {
+        return List.of(
+                new Search<>("Введите дату рождения пациента:", Patient::getDateOfBirth),
+                new Search<>("Введите фамилию пациента:", Patient::getLastname),
+                new Search<>("Введите имя пациента:", Patient::getFirstname),
+                new Search<>("Введите номер полиса пациента:", Patient::getInsurancePolicy));
     }
 
     @Override
@@ -119,6 +123,6 @@ public class Patient extends Person implements Comparable<Patient> {
 
     @Override
     public String toString() {
-        return super.toString() + ", " + insurancePolicy + "\n";
+        return insurancePolicy + ", " + super.toString() + "\n";
     }
 }
