@@ -282,7 +282,7 @@ public class Appointment extends Entity implements Comparable<Appointment> {
                 return date1.compareTo(date2);
             }
         } catch (ParseException e) {
-            System.out.println("Некорректный формат даты");
+            System.out.println("Некорректная форма даты");
         }
         if (!code.equals(appointment.getCode())) {
             return code.compareTo(appointment.getCode());
