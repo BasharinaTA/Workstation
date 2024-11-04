@@ -13,7 +13,7 @@ public class Doctor extends Person implements Comparable<Doctor> {
     private String code;
 
     public Doctor() {
-        code = UUID.randomUUID().toString();
+        code = "fdfd";
     }
 
     public Doctor(String[] arr) {
